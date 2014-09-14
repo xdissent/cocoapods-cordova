@@ -1,3 +1,5 @@
+require 'cocoapods-cordova/plugin'
+
 module Pod
   class Command
     # This is an example of a cocoapods plugin adding a top-level subcommand
@@ -24,20 +26,10 @@ module Pod
         Longer description of cocoapods-cordova.
       DESC
 
-      self.arguments = 'NAME'
-
-      def initialize(argv)
-        @name = argv.shift_argument
-        super
-      end
-
-      def validate!
-        super
-        help! "A Pod name is required." unless @name
-      end
-
       def run
-        UI.puts "Add your implementation for the cocoapods-cordova plugin in #{__FILE__}"
+        plugin = Pod::Cordova::Plugin.new config
+        plugin.build!
+        plugin.build_xml!
       end
     end
   end
