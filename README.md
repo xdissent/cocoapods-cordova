@@ -101,12 +101,10 @@ $ bundle exec pod install
 </plugin>
 ```
 
-* Implement plugin
+* Implement/Test plugin
 
-* Test plugin
-
-* Build plugin
+* Build plugin:
 
 ```console
-$ bundle exec pod install
+$ bundle exec pod cordova
 ```
