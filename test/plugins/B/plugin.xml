@@ -1,9 +1,17 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version='1.0' encoding='UTF-8'?> 
 <plugin xmlns='http://apache.org/cordova/ns/plugins/1.0' id='com.cocoapods-cordova.B' version='0.0.1'>
-  <name>B</name>
-  <description>B Test Plugin</description>
-  <license>MIT</license>
-  <keywords>test</keywords>
+  <name>
+     B 
+  </name>
+  <description>
+     B Test Plugin 
+  </description>
+  <license>
+     MIT 
+  </license>
+  <keywords>
+     test 
+  </keywords>
   <js-module src='www/B.js' name='B'>
     <clobbers target='B'/>
   </js-module>
@@ -13,5 +21,7 @@
         <param name='ios-package' value='B'/>
       </feature>
     </config-file>
+    <header-file src='build/iphoneos/include/B/B.h' pod='true'/>
+    <source-file src='build/libB.a' framework='true' pod='true'/>
   </platform>
 </plugin>
