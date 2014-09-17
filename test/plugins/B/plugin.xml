@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<plugin xmlns='http://apache.org/cordova/ns/plugins/1.0' id='com.cocoapods-cordova.B' version='0.0.1'>
+  <name>B</name>
+  <description>B Test Plugin</description>
+  <license>MIT</license>
+  <keywords>test</keywords>
+  <js-module src='www/B.js' name='B'>
+    <clobbers target='B'/>
+  </js-module>
+  <platform name='ios'>
+    <config-file target='config.xml' parent='/*'>
+      <feature name='B'>
+        <param name='ios-package' value='B'/>
+      </feature>
+    </config-file>
+  </platform>
+</plugin>
