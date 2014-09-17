@@ -151,21 +151,25 @@ module Pod
         }.values.first
       end
 
-      def build!
-        build_pods_project!
-        build_project!
-        build_pods_project! 'iphonesimulator'
-        build_project! 'iphonesimulator'
+      def build!(mangle = true)
+        # Always gotta build once to get names for mangling
+        build_pods_project! 'iphoneos', false
+        build_pods_project! 'iphoneos', true if mangle
+        build_project! 'iphoneos', mangle
+        build_pods_project! 'iphonesimulator', mangle
+        build_project! 'iphonesimulator', mangle
         lipo!
       end
 
-      def build_project!(sdk = 'iphoneos')
+      def build_project!(sdk = 'iphoneos', mangle = true)
         defines = "#{default_defines sdk} OTHER_LDFLAGS='#{ldflags}'"
+        defines = "#{defines} #{mangled_defines}" if mangle
         xcodebuild! project_path, scheme, "-sdk #{sdk}", defines
       end
 
-      def build_pods_project!(sdk = 'iphoneos')
+      def build_pods_project!(sdk = 'iphoneos', mangle = true)
         defines = default_defines sdk
+        defines = "#{defines} #{mangled_defines}" if mangle
         xcodebuild! pods_project_path, 'Pods', "-sdk #{sdk}", defines
       end
 
@@ -178,11 +182,13 @@ module Pod
           begin
             stdin.each { |line| UI.puts line }
           rescue Errno::EIO
-            UI.puts 'IO ERROR'
+            raise RuntimeError, "Command IO error: #{cmd}"
           end
+          Process.wait pid
         end
+        raise RuntimeError, "Command failed: #{cmd}" unless $?.exitstatus == 0
       rescue PTY::ChildExited
-        UI.puts 'Child process exited'
+        raise RuntimeError, "Command exited abnormally: #{cmd}"
       end
 
       def lipo!
@@ -198,6 +204,51 @@ module Pod
         @ldflags ||= specs.map { |spec|
           "-l\"Pods-#{spec.name.gsub /\/.*/, ''}\""
         }.uniq.join ' '
+      end
+
+      def mangled_defines
+        return @mangled_defines unless @mangled_defines.nil?
+        dummy_alias = alias_symbol 'PodsDummy_Pods'
+        all_syms = [dummy_alias]
+
+        specs.map { |spec| spec.name.gsub /\/.*/, '' }.uniq.each do |name|
+          syms = symbols_from_pod name
+          all_syms += syms.map! { |sym| alias_symbol sym }
+        end
+
+        @mangled_defines = "GCC_PREPROCESSOR_DEFINITIONS='${inherited} #{all_syms.uniq.join(' ')}'"
+      end
+
+      def alias_symbol(sym)
+        sym + "=CocoaPodsCordova_#{scheme.gsub '-', '_'}_" + sym
+      end
+
+      def symbols_from_pod(name)
+        library = File.join sdk_build_path('iphoneos'), "libPods-#{name}.a"
+        syms = `nm -g #{library}`.split("\n")
+
+        result = classes_from_symbols syms
+        result + constants_from_symbols(syms)
+      end
+
+      def classes_from_symbols(syms)
+        classes = syms.select { |klass| klass[/OBJC_CLASS_\$_/] }
+        classes = classes.select { |klass| klass !~ /_NS|_UI/ }
+        classes = classes.uniq
+        classes.map! { |klass| klass.gsub /^.*\$_/, '' }
+      end
+
+      def constants_from_symbols(syms)
+        consts = syms.select { |const| const[/ S /] }
+        consts = consts.select { |const| const !~ /OBJC|\.eh/ }
+        consts = consts.uniq
+        consts = consts.map! { |const| const.gsub /^.* _/, '' }
+
+        other_consts = syms.select { |const| const[/ T /] }
+        other_consts = other_consts.uniq
+        other_consts = other_consts.map! { |const| const.gsub /^.* _/, '' }
+
+        consts + other_consts
       end
 
       def resolver
