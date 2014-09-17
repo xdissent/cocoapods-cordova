@@ -32,9 +32,14 @@ module Pod
         ]
       end
 
+      def initialize(argv)
+        @mangle = argv.flag? 'mangle', true
+        super
+      end
+
       def run
         plugin = Pod::Cordova::Plugin.new config
-        plugin.build! argv.flag? 'mangle', true
+        plugin.build! @mangle
         plugin.build_xml!
       end
     end
