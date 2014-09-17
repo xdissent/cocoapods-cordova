@@ -152,7 +152,8 @@ module Pod
       end
 
       def build!(mangle = true)
-        build_pods_project! # Always gotta build once to get names for mangling
+        # Always gotta build once to get names for mangling
+        build_pods_project! 'iphoneos', false
         build_pods_project! 'iphoneos', true if mangle
         build_project! 'iphoneos', mangle
         build_pods_project! 'iphonesimulator', mangle
@@ -160,13 +161,13 @@ module Pod
         lipo!
       end
 
-      def build_project!(sdk = 'iphoneos', mangle = false)
+      def build_project!(sdk = 'iphoneos', mangle = true)
         defines = "#{default_defines sdk} OTHER_LDFLAGS='#{ldflags}'"
         defines = "#{defines} #{mangled_defines}" if mangle
         xcodebuild! project_path, scheme, "-sdk #{sdk}", defines
       end
 
-      def build_pods_project!(sdk = 'iphoneos', mangle = false)
+      def build_pods_project!(sdk = 'iphoneos', mangle = true)
         defines = default_defines sdk
         defines = "#{defines} #{mangled_defines}" if mangle
         xcodebuild! pods_project_path, 'Pods', "-sdk #{sdk}", defines
