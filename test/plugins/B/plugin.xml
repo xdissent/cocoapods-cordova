@@ -21,7 +21,5 @@
         <param name='ios-package' value='B'/>
       </feature>
     </config-file>
-    <header-file src='build/iphoneos/include/B/B.h' pod='true'/>
-    <source-file src='build/libB.a' framework='true' pod='true'/>
   </platform>
 </plugin>
