@@ -26,9 +26,20 @@ module Pod
         Longer description of cocoapods-cordova.
       DESC
 
+      def self.options
+        [
+          ['--no-mangle', 'Do not mangle symbols of depedendant Pods.']
+        ]
+      end
+
+      def initialize(argv)
+        @mangle = argv.flag? 'mangle', true
+        super
+      end
+
       def run
         plugin = Pod::Cordova::Plugin.new config
-        plugin.build!
+        plugin.build! @mangle
         plugin.build_xml!
       end
     end

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>B77C1327-31A4-44B8-98EA-2E94BBA7CE7C</string>
+	<key>IDESourceControlProjectName</key>
+	<string>B</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>DABCCCE5-6BAA-4249-9943-04C9FC166369</key>
+		<string>https://github.com/xdissent/cocoapods-cordova.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>test/plugins/B/B.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>DABCCCE5-6BAA-4249-9943-04C9FC166369</key>
+		<string>../../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/xdissent/cocoapods-cordova.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>110</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>DABCCCE5-6BAA-4249-9943-04C9FC166369</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>DABCCCE5-6BAA-4249-9943-04C9FC166369</string>
+			<key>IDESourceControlWCCName</key>
+			<string>B</string>
+		</dict>
+	</array>
+</dict>
+</plist>
