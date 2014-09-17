@@ -26,6 +26,7 @@ module Pod
         path = Dir.glob(File.join config.installation_root, '*.podspec').first
         @spec ||= spec_with_path path
         @embedded = false
+        @library = true
       end
 
       # Overridden to remove deps from other cordova-plugins and cordova itself
