@@ -35,6 +35,8 @@ module Pod
       def run
         @target_dir = "#{@source_dir}/dist"
         super
+        return nil if @plugin.nil?
+        @plugin.update_xml! @target_dir
         `rm -f #{@target_dir}/#{@spec.name}.podspec 2>&1`
       end
 

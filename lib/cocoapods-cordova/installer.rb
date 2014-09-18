@@ -2,16 +2,23 @@ module Pod
   module Cordova
     class Installer < Installer
 
+      attr_accessor :plugin_name
+
+      def initialize(plugin_name, sandbox, podfile, lockfile = nil)
+        super sandbox, podfile, lockfile
+        @plugin_name = plugin_name
+      end
+
       # Filter out dependencies from cordova plugins and cordova itself
       def set_target_dependencies
         aggregate_targets.each do |aggregate_target|
           aggregate_target.pod_targets.each do |pod_target|
-            if plugin_targets.push(plugin_name).include? pod_target.pod_name
+            if plugin_target_names.push(plugin_name).include? pod_target.pod_name
               aggregate_target.target.add_dependency(pod_target.target)
             end
             is_plugin = pod_target.pod_name == plugin_name
             pod_target.dependencies.each do |dep|
-              is_excluded = (is_plugin and !plugin_targets.include?(dep))
+              is_excluded = (is_plugin and !plugin_target_names.include?(dep))
               unless dep == pod_target.pod_name or is_excluded 
                 pod_dependency_target = aggregate_target.pod_targets.find { |target| target.pod_name == dep }
                 # TODO remove me
@@ -36,7 +43,7 @@ module Pod
 
           aggregate_targets.sort_by(&:name).each do |target|
             next if target.target_definition.empty?
-            target_installer = Pod::Cordova::AggregateTargetInstaller.new(sandbox, target, plugin_targets)
+            target_installer = Pod::Cordova::AggregateTargetInstaller.new(sandbox, target, plugin_target_names)
             target_installer.install!
           end
 
@@ -71,14 +78,18 @@ module Pod
         }
       end
 
-      def plugin_name
-        podfile.dependencies.map(&:root_name).uniq.first
+      def plugin_spec
+        pod_specs_by_name[plugin_name]
       end
 
-      def plugin_targets
-        recursive_specs_for_deps(pod_deps).values.map { |spec|
+      def plugin_target_names
+        plugin_target_specs.map { |spec|
           Specification.root_name spec.name
         }.uniq
+      end
+
+      def plugin_target_specs
+        recursive_specs_for_deps(pod_deps).values
       end
 
       # Returns specs for an array of deps

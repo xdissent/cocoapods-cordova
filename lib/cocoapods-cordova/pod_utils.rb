@@ -37,8 +37,8 @@ module Pod
           @subspecs)
 
         sandbox = Sandbox.new(config.sandbox_root)
-        installer = Pod::Cordova::Installer.new(sandbox, podfile)
-        installer.install!
+        @plugin = Pod::Cordova::Plugin.new @spec.name, sandbox, podfile
+        @plugin.install!
 
         sandbox
       end
