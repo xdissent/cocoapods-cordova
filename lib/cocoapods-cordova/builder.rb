@@ -1,3 +1,5 @@
+require 'pty'
+
 module Pod
   module Cordova
     class Builder < Builder
