@@ -35,8 +35,6 @@ module Pod
       def run
         @target_dir = "#{@source_dir}/dist"
         super
-        `mv #{@target_dir}/ios/* #{@target_dir}/`
-        `rm -rf #{@target_dir}/ios 2>&1`
         `rm -f #{@target_dir}/#{@spec.name}.podspec 2>&1`
       end
 
