@@ -19,9 +19,9 @@
     <config-file target='config.xml' parent='/*'>
       <feature name='B'>
         <param name='ios-package' value='B'/>
-        <header-file src='dist/include/B/B.h' pod='true'/>
-        <source-file src='dist/libB.a' framework='true' pod='true'/>
       </feature>
     </config-file>
+    <header-file src='dist/include/B/B.h' pod='true'/>
+    <source-file src='dist/libB.a' framework='true' pod='true'/>
   </platform>
 </plugin>
