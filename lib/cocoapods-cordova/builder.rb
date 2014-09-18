@@ -4,6 +4,30 @@ module Pod
   module Cordova
     class Builder < Builder
 
+      def build(platform, library)
+        super
+        copy_headers platform
+        copy_resources platform
+      end
+
+      def copy_headers(platform)
+        header_path = Pathname.new(platform.name.to_s) + Pathname.new('include')
+        header_path.mkdir unless header_path.exist?
+        headers_source_root = "#{@public_headers_root}/#{@spec.name}"
+
+        Dir.glob("#{headers_source_root}/**/*.h").each { |h|
+          `ditto #{h} #{header_path}/#{h.sub(headers_source_root, '')}`
+        }
+      end
+
+      def copy_resources(platform)
+        resources_path = Pathname.new(platform.name.to_s) + Pathname.new('resources')
+        resources_path.mkdir unless resources_path.exist?
+        Dir.glob("#{@sandbox_root}/build/resources/**/*").each { |h|
+          `ditto #{h} #{resources_path}/#{File.basename h}`
+        }
+      end
+
       # Execute a command, showing output, and raise an error if it fails
       def exec!(cmd)
         PTY.spawn(cmd) do |stdin, stdout, pid|

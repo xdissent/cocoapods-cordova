@@ -11,7 +11,7 @@ module Pod
             end
             is_plugin = pod_target.pod_name == plugin_name
             pod_target.dependencies.each do |dep|
-              is_excluded = is_plugin and !plugin_targets.include? dep
+              is_excluded = (is_plugin and !plugin_targets.include?(dep))
               unless dep == pod_target.pod_name or is_excluded 
                 pod_dependency_target = aggregate_target.pod_targets.find { |target| target.pod_name == dep }
                 # TODO remove me
@@ -19,6 +19,33 @@ module Pod
                   puts "[BUG] DEP: #{dep}"
                 end
                 pod_target.target.add_dependency(pod_dependency_target.target)
+              end
+            end
+          end
+        end
+      end
+
+      # Use custom aggregate target installer
+      def install_libraries
+        UI.message '- Installing targets' do
+          pod_targets.sort_by(&:name).each do |pod_target|
+            next if pod_target.target_definition.empty?
+            target_installer = PodTargetInstaller.new(sandbox, pod_target)
+            target_installer.install!
+          end
+
+          aggregate_targets.sort_by(&:name).each do |target|
+            next if target.target_definition.empty?
+            target_installer = Pod::Cordova::AggregateTargetInstaller.new(sandbox, target, plugin_targets)
+            target_installer.install!
+          end
+
+          # TODO
+          # Move and add specs
+          pod_targets.sort_by(&:name).each do |pod_target|
+            pod_target.file_accessors.each do |file_accessor|
+              file_accessor.spec_consumer.frameworks.each do |framework|
+                pod_target.target.add_system_framework(framework)
               end
             end
           end
@@ -45,13 +72,13 @@ module Pod
       end
 
       def plugin_name
-        podfile.dependencies.map { |dep|
-          dep.name.gsub /^([^\/]+)\/?.*$/, '\1'
-        }.uniq.first
+        podfile.dependencies.map(&:root_name).uniq.first
       end
 
       def plugin_targets
-        recursive_specs_for_deps(pod_deps).values.map(&:name).uniq
+        recursive_specs_for_deps(pod_deps).values.map { |spec|
+          Specification.root_name spec.name
+        }.uniq
       end
 
       # Returns specs for an array of deps

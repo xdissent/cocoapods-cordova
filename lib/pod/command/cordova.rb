@@ -32,6 +32,26 @@ module Pod
         @library = true
       end
 
+      def run
+        @target_dir = "#{@source_dir}/dist"
+        super
+        `mv #{@target_dir}/ios/* #{@target_dir}/`
+        `rm -rf #{@target_dir}/ios 2>&1`
+        `rm -f #{@target_dir}/#{@spec.name}.podspec 2>&1`
+      end
+
+      def create_target_directory
+        if File.exist? @target_dir
+          if @force
+            Pathname.new(@target_dir).rmtree
+          else
+            UI.puts "Target directory '#{@target_dir}' already exists."
+            return nil
+          end
+        end
+        @target_dir
+      end
+
       # Overridden to use custom builder
       def perform_build(platform, sandbox)
         builder = Pod::Cordova::Builder.new(
@@ -43,9 +63,6 @@ module Pod
           @mangle)
 
         builder.build(platform, @library)
-
-        return unless @embedded
-        builder.link_embedded_resources
       end
     end
   end
