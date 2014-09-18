@@ -2,10 +2,16 @@ module Pod
 
   class Command
     class Cordova < Package
-      self.summary = "Short description of cocoapods-cordova."
+
+      # Inherit from Package but act like a top-level command
+      Package.subcommands.delete self
+      Command.subcommands.push self
+
+      self.summary = "Build a cordova plugin"
 
       self.description = <<-DESC
-        Longer description of cocoapods-cordova.
+        Build a cordova plugin from podspec. The plugin is compiled as a single
+        static library.
       DESC
 
       self.arguments = []
