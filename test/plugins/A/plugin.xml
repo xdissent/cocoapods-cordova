@@ -21,7 +21,7 @@
         <param name='ios-package' value='A'/>
       </feature>
     </config-file>
-    <header-file src='build/iphoneos/include/A/A.h' pod='true'/>
-    <source-file src='build/libA.a' framework='true' pod='true'/>
+    <source-file framework='true' src='dist/ios/libA.a' pod='true'/>
+    <header-file src='dist/ios/include/A.h' pod='true'/>
   </platform>
 </plugin>

@@ -1,2 +1,7 @@
+require 'pod/command/package'
 require 'pod/command/cordova'
+require 'cocoapods-cordova/builder'
+require 'cocoapods-cordova/installer'
+require 'cocoapods-cordova/aggregate_target_installer'
+require 'cocoapods-cordova/pod_utils'
 require 'cocoapods-cordova/plugin'

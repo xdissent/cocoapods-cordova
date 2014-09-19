@@ -2,13 +2,11 @@
 
 pushd plugins/A
 bundle install
-bundle exec pod install --verbose
 bundle exec pod cordova
 popd
 
 pushd plugins/B
 bundle install
-bundle exec pod install  --verbose
 bundle exec pod cordova
 popd
 

@@ -1,46 +1,68 @@
-require 'cocoapods-cordova/plugin'
-
 module Pod
+
   class Command
-    # This is an example of a cocoapods plugin adding a top-level subcommand
-    # to the 'pod' command.
-    #
-    # You can also create subcommands of existing or new commands. Say you
-    # wanted to add a subcommand to `list` to show newly deprecated pods,
-    # (e.g. `pod list deprecated`), there are a few things that would need
-    # to change.
-    #
-    # - move this file to `lib/pod/command/list/deprecated.rb` and update
-    #   the class to exist in the the Pod::Command::List namespace
-    # - change this class to extend from `List` instead of `Command`. This
-    #   tells the plugin system that it is a subcommand of `list`.
-    # - edit `lib/cocoapods_plugins.rb` to require this file
-    #
-    # @todo Create a PR to add your plugin to CocoaPods/cocoapods.org
-    #       in the `plugins.json` file, once your plugin is released.
-    #
-    class Cordova < Command
-      self.summary = "Short description of cocoapods-cordova."
+    class Cordova < Package
+
+      # Inherit from Package but act like a top-level command
+      Package.subcommands.delete self
+      Command.subcommands.push self
+
+      self.summary = "Build a cordova plugin"
 
       self.description = <<-DESC
-        Longer description of cocoapods-cordova.
+        Build a cordova plugin from podspec. The plugin is compiled as a single
+        static library.
       DESC
+
+      self.arguments = []
 
       def self.options
         [
-          ['--no-mangle', 'Do not mangle symbols of depedendant Pods.']
+          ['--force',     'Overwrite existing files.'],
+          ['--no-mangle', 'Do not mangle symbols of depedendant Pods.'],
+          ['--subspecs',  'Only include the given subspecs']
         ]
       end
 
       def initialize(argv)
-        @mangle = argv.flag? 'mangle', true
         super
+        path = Dir.glob(File.join config.installation_root, '*.podspec').first
+        @spec ||= spec_with_path path
+        @embedded = false
+        @library = true
       end
 
       def run
-        plugin = Pod::Cordova::Plugin.new config
-        plugin.build! @mangle
-        plugin.build_xml!
+        @target_dir = "#{@source_dir}/dist"
+        super
+        return nil if @plugin.nil?
+        @plugin.update_xml! @target_dir
+        `rm -f #{@target_dir}/#{@spec.name}.podspec 2>&1`
+      end
+
+      def create_target_directory
+        if File.exist? @target_dir
+          if @force
+            Pathname.new(@target_dir).rmtree
+          else
+            UI.puts "Target directory '#{@target_dir}' already exists."
+            return nil
+          end
+        end
+        @target_dir
+      end
+
+      # Overridden to use custom builder
+      def perform_build(platform, sandbox)
+        builder = Pod::Cordova::Builder.new(
+          @source_dir,
+          config.sandbox_root,
+          sandbox.public_headers.root,
+          @spec,
+          @embedded,
+          @mangle)
+
+        builder.build(platform, @library)
       end
     end
   end
