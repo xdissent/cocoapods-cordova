@@ -62,10 +62,6 @@ module Pod
         Pathname.new(file).relative_path_from(Pathname.new(xml_path).dirname).to_s
       end
 
-      def bundle_relative_dir(file, bundle)
-        File.dirname Pathname.new(file).relative_path_from(Pathname.new(bundle).dirname).to_s
-      end
-
       def add_headers
         headers.each { |file|
           add_element 'header-file', 'src' => plugin_relative_path(file)
@@ -86,14 +82,9 @@ module Pod
       end
 
       def add_resource_bundles
-        resource_bundles.each { |bundle|
-          name = File.basename bundle
-          Dir.glob(File.join bundle, '**/*').reject { |file|
-            File.directory? file
-          }.each { |file|
-            add_element 'resource-file', 'src' => plugin_relative_path(file),
-              'target-dir' => bundle_relative_dir(file, bundle)
-          }
+        resource_bundles.each { |file|
+          add_element 'resource-file', 'src' => plugin_relative_path(file),
+              'target-dir' => File.basename(file)
         }
       end
 
