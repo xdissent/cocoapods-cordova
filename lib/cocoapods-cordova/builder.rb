@@ -8,6 +8,7 @@ module Pod
         super
         copy_headers platform
         copy_resources platform
+        copy_resource_bundles platform
       end
 
       def copy_headers(platform)
@@ -21,9 +22,25 @@ module Pod
       end
 
       def copy_resources(platform)
-        resources_path = Pathname.new(platform.name.to_s) + Pathname.new('resources')
+        resources_path = Pathname.new platform.name.to_s
         resources_path.mkdir unless resources_path.exist?
-        Dir.glob("#{@sandbox_root}/build/resources/**/*").each { |h|
+
+        Dir.glob("#{@sandbox_root}/build/**/*").reject { |file|
+          File.basename(file).end_with?('.a') or
+            File.basename(file).end_with?('.h')
+            File.directory?(file) or
+            file =~ /\/?[^\/]+.bundle\// or
+            file =~ /\/?[^\/]+.build\//
+        }.each { |h|
+          `ditto #{h} #{resources_path}/#{File.basename h}`
+        }
+      end
+
+      def copy_resource_bundles(platform)
+        resources_path = Pathname.new platform.name.to_s
+        resources_path.mkdir unless resources_path.exist?
+
+        Dir.glob("#{@sandbox_root}/build/*.bundle").each { |h|
           `ditto #{h} #{resources_path}/#{File.basename h}`
         }
       end

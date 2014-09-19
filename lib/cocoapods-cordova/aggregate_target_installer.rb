@@ -27,7 +27,7 @@ module Pod
         phase_name = 'Copy Pods Resources'
         phase = target.shell_script_build_phases.select { |bp| bp.name == phase_name }.first
         phase ||= target.new_shell_script_build_phase(phase_name)
-        phase.shell_script = %(export UNLOCALIZED_RESOURCES_FOLDER_PATH="resources"; export PODS_ROOT="#{sandbox.root}"; "#{library.copy_resources_script_path}"\n)
+        phase.shell_script = %(export PODS_ROOT="#{sandbox.root}"; "#{library.copy_resources_script_path}"\n)
         phase.show_env_vars_in_log = '0'
       end
     end

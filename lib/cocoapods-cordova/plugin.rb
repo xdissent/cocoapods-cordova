@@ -29,6 +29,7 @@ module Pod
         add_sources
         add_headers
         add_resources
+        add_resource_bundles
         add_frameworks
         add_libraries
         write_xml!
@@ -61,6 +62,10 @@ module Pod
         Pathname.new(file).relative_path_from(Pathname.new(xml_path).dirname).to_s
       end
 
+      def bundle_relative_dir(file, bundle)
+        File.dirname Pathname.new(file).relative_path_from(Pathname.new(bundle).dirname).to_s
+      end
+
       def add_headers
         headers.each { |file|
           add_element 'header-file', 'src' => plugin_relative_path(file)
@@ -77,6 +82,18 @@ module Pod
       def add_resources
         resources.each { |file|
           add_element 'resource-file', 'src' => plugin_relative_path(file)
+        }
+      end
+
+      def add_resource_bundles
+        resource_bundles.each { |bundle|
+          name = File.basename bundle
+          Dir.glob(File.join bundle, '**/*').reject { |file|
+            File.directory? file
+          }.each { |file|
+            add_element 'resource-file', 'src' => plugin_relative_path(file),
+              'target-dir' => bundle_relative_dir(file, bundle)
+          }
         }
       end
 
@@ -110,15 +127,24 @@ module Pod
       end
 
       def headers
-        Dir.glob(File.join headers_path, '**/*').reject { |file|
+        Dir.glob(File.join headers_path, '**/*.h').reject { |file|
           File.directory? file
         }.map { |file| File.absolute_path file }
       end
 
       def resources
         Dir.glob(File.join resources_path, '**/*').reject { |file|
-          File.directory? file
+          File.basename(file).end_with?('.a') or
+            File.basename(file).end_with?('.h')
+            File.directory?(file) or
+            plugin_relative_path(file) =~ /\/?[^\/]+.bundle\//
         }.map { |file| File.absolute_path file }
+      end
+
+      def resource_bundles
+        Dir.glob(File.join resources_path, '**/*.bundle').map { |file|
+          File.absolute_path file
+        }
       end
 
       def libraries
@@ -138,7 +164,7 @@ module Pod
       end
 
       def resources_path
-        File.join target_dir, 'ios', 'resources'
+        File.join target_dir, 'ios'
       end
 
       def consumers
