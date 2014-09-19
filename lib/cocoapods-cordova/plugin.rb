@@ -135,7 +135,7 @@ module Pod
       def resources
         Dir.glob(File.join resources_path, '**/*').reject { |file|
           File.basename(file).end_with?('.a') or
-            File.basename(file).end_with?('.h')
+            File.basename(file).end_with?('.h') or
             File.directory?(file) or
             plugin_relative_path(file) =~ /\/?[^\/]+.bundle\//
         }.map { |file| File.absolute_path file }

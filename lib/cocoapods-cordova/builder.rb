@@ -27,7 +27,7 @@ module Pod
 
         Dir.glob("#{@sandbox_root}/build/**/*").reject { |file|
           File.basename(file).end_with?('.a') or
-            File.basename(file).end_with?('.h')
+            File.basename(file).end_with?('.h') or
             File.directory?(file) or
             file =~ /\/?[^\/]+.bundle\// or
             file =~ /\/?[^\/]+.build\//
